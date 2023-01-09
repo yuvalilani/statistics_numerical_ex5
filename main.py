@@ -30,8 +30,9 @@ def flip_all(spin_lattice, energy_lattice):
             flip_spin(spin_lattice, energy_lattice, i, j, p[i, j], eta)
 
 
-def stop(f1, f2):
-    pass
+def dont_stop(m1, m2, k):
+    delta = 10**-3
+    return not (abs(m1 - m2) / abs(m2) < delta or k > 10 ** 8)
 
 
 def energy_setup(spin_lattice, energy_lattice, h, eta):
@@ -67,7 +68,7 @@ def simulate(k):
     energy_setup(spin_lattice, energy_lattice)
     first = single_run(k)
     second = single_run(2 * k)
-    while stop(first, second):
+    while stop(first, second, ):
         k = 2 * k
         first = second
         second = single_run(2 * k)
