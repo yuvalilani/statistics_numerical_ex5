@@ -2,7 +2,6 @@ import numpy as np
 
 
 def p_flip(energy):
-    print(energy)
     return 1 / (np.exp(-2 * energy) + 1)
 
 
@@ -50,8 +49,8 @@ def energy_setup(spin_lattice, energy_lattice, lattice_size, h, eta):
                 energy_lattice[x, y] -= eta * spin_lattice[x - 1, y]
             if y > 0:
                 energy_lattice[x, y] -= eta * spin_lattice[x, y - 1]
-            energy_lattice -= h
-            energy_lattice *= spin_lattice[x, y]
+            energy_lattice[x, y] -= h
+            energy_lattice[x, y] *= spin_lattice[x, y]
 
 
 def single_run(spin_lattice, energy_lattice, lattice_size, k, n_sweep, h, eta):
@@ -64,7 +63,7 @@ def single_run(spin_lattice, energy_lattice, lattice_size, k, n_sweep, h, eta):
         for j in range(n_sweep):
             flip_all(spin_lattice, energy_lattice, lattice_size, p[i*n_sweep+j], eta)
         m = np.sum(spin_lattice)
-        u = 2*energy_lattice + m * h
+        u = 2*np.sum(energy_lattice) + m * h
         M += m
         M_sqr += m**2
         U += u
@@ -88,13 +87,13 @@ def simulate(k, h, eta):
         k = 2 * k
         first = second
         second = single_run(spin_lattice, energy_lattice, lattice_size, 2*k, n_sweep, h, eta)
-        print(k)
+        print(k, second)
     return second
 
 
 if __name__ == '__main__':
     # parameters
-    k = 25000
-    h = 1
+    k = 50
+    h = 0
     eta = 0.5
     M, M_sqr, U, U_sqr = simulate(k, h, eta)
