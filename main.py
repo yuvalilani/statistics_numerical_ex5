@@ -1,7 +1,23 @@
 import numpy as np
 
 
+def p_flip(energy):
+    return 1 / (np.exp(-2 * energy) + 1)
+
+
 def flip_spin(spin_lattice, energy_lattice, x, y, p, eta):
+    energy = energy_lattice[x, y]
+    if p < p_flip(energy):
+        spin_lattice[x, y] *= -1
+        energy_delta = 2 * eta * spin_lattice[x, y]
+        if x < lattice_size - 1:
+            energy_lattice[x + 1, y] += energy_delta * spin_lattice[x + 1, y]
+        if y < lattice_size - 1:
+            energy_lattice[x, y + 1] += energy_delta * spin_lattice[x, y + 1]
+        if x > 0:
+            energy_lattice[x - 1, y] += energy_delta * spin_lattice[x - 1, y]
+        if y > 0:
+            energy_lattice[x, y - 1] += energy_delta * spin_lattice[x, y - 1]
     pass
 
 
@@ -18,7 +34,7 @@ def stop(f1, f2):
     pass
 
 
-def energy_setup(spin_lattice, energy_lattice):
+def energy_setup(spin_lattice, energy_lattice, h, eta):
     """
     CHANGES THE energy_lattice
     :param energy_lattice:
