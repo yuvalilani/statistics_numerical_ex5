@@ -1,5 +1,6 @@
 import numpy as np
 from numba import njit
+import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
@@ -72,7 +73,6 @@ def neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta):
                 neighbor_sum[x, y] += spin_lattice[x, y - 1]
 
 
-@njit
 def single_run(spin_lattice, neighbor_sum, lattice_size, k, n_sweep, h, eta, p_flip):
     p = np.random.random((k * n_sweep, lattice_size, lattice_size))
     M = np.zeros(k)
@@ -91,12 +91,8 @@ def single_run(spin_lattice, neighbor_sum, lattice_size, k, n_sweep, h, eta, p_f
     return np.average(M), np.average(M_sqr), np.average(U), np.average(U_sqr)
 
 
-def simulate(k, h, eta):
+def full_run(spin_lattice, neighbor_sum, k, h, eta, lattice_size):
     n_sweep = 5
-    lattice_size = 32
-    spin_lattice = spin_setup(lattice_size)
-    neighbor_sum = np.zeros((lattice_size, lattice_size), float)
-    neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta)
     p_flip = create_p_flip(h, eta)
     single_run(spin_lattice, neighbor_sum, lattice_size, k, n_sweep, h, eta, p_flip)
     first = single_run(spin_lattice, neighbor_sum, lattice_size, k, n_sweep, h, eta, p_flip)
@@ -108,23 +104,43 @@ def simulate(k, h, eta):
     return second
 
 
-if __name__ == '__main__':
-    # parameters
+def simulate(k, h, eta, lattice_size):
+    spin_lattice = spin_setup(lattice_size)
+    neighbor_sum = np.zeros((lattice_size, lattice_size), float)
+    neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta)
+    return full_run(spin_lattice, neighbor_sum, k, h, eta, lattice_size)
+
+
+def full_simulation(h, eta, log_data=False):
     k = 50
-    eta = np.linspace(0.1, 0.8, 20)
+    lattice_size = 32
+    h = 1
     N = len(eta)
-    m = np.zeros(N)
-    u = np.zeros(N)
-    m_sqr = np.zeros(N)
-    u_sqr = np.zeros(N)
+    data = np.zeros((5, N))
+    data[0] = eta
     for n in tqdm(range(N)):
-        h = 0
-        output = simulate(k, h, eta[n])
-        m[n] = output[0]
-        m_sqr[n] = output[1]
-        u[n] = output[2]
-        u_sqr[n] = output[3]
-    plt.plot(eta, abs(m), '.')
+        output = simulate(k, h, eta[n], lattice_size)
+        data[1:, n] = output
+    plt.plot(eta, abs(data[1]), '.')
     plt.show()
-    plt.plot(eta, u, '.')
+    plt.plot(eta, data[3], '.')
     plt.show()
+    #  log data to csv
+    if log_data:
+        pd.DataFrame(data.transpose(), columns=["eta", "M", "M_sqr", "U", "U_sqr"]).to_csv("h = " + str(h) + ".csv")
+
+
+def simulate_hysteresis(k, h_max, eta, lattice_size):
+    n_sweep = 5
+    spin_lattice = spin_setup(lattice_size)
+    neighbor_sum = np.zeros((lattice_size, lattice_size), float)
+    neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta)
+    h_array = []
+    for n in range(len(h_array)):
+        full_run(spin_lattice, neighbor_sum, k, h, eta, lattice_size)
+
+
+if __name__ == '__main__':
+    h = 1
+    eta = np.arange(0.1, 0.85, 0.05)  # points from 0.1 to 0.8 with jumps of 0.05
+    full_simulation(h, eta)
