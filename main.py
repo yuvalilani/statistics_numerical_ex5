@@ -57,7 +57,7 @@ def spin_setup(lattice_size):
 
 
 @njit
-def neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta):
+def neighbor_setup(spin_lattice, neighbor_sum, lattice_size):
     """
     CHANGES THE neighbor_sum
     """
@@ -107,20 +107,17 @@ def full_run(spin_lattice, neighbor_sum, k, h, eta, lattice_size):
 def simulate(k, h, eta, lattice_size):
     spin_lattice = spin_setup(lattice_size)
     neighbor_sum = np.zeros((lattice_size, lattice_size), float)
-    neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta)
+    neighbor_setup(spin_lattice, neighbor_sum, lattice_size)
     return full_run(spin_lattice, neighbor_sum, k, h, eta, lattice_size)
 
 
 def full_simulation(h, eta, log_data=False):
     k = 50
     lattice_size = 32
-    h = 1
-    N = len(eta)
-    data = np.zeros((5, N))
+    data = np.zeros((5, len(eta)))
     data[0] = eta
-    for n in tqdm(range(N)):
-        output = simulate(k, h, eta[n], lattice_size)
-        data[1:, n] = output
+    for n in tqdm(range(len(eta))):
+        data[1:, n] = simulate(k, h, eta[n], lattice_size)
     plt.plot(eta, abs(data[1]), '.')
     plt.show()
     plt.plot(eta, data[3], '.')
@@ -130,17 +127,28 @@ def full_simulation(h, eta, log_data=False):
         pd.DataFrame(data.transpose(), columns=["eta", "M", "M_sqr", "U", "U_sqr"]).to_csv("h = " + str(h) + ".csv")
 
 
-def simulate_hysteresis(k, h_max, eta, lattice_size):
-    n_sweep = 5
+def simulate_hysteresis(h, eta, log_data=False):
+    k = 50
+    lattice_size = 32
     spin_lattice = spin_setup(lattice_size)
     neighbor_sum = np.zeros((lattice_size, lattice_size), float)
-    neighbor_setup(spin_lattice, neighbor_sum, lattice_size, h, eta)
-    h_array = []
-    for n in range(len(h_array)):
-        full_run(spin_lattice, neighbor_sum, k, h, eta, lattice_size)
+    neighbor_setup(spin_lattice, neighbor_sum, lattice_size)
+    data = np.zeros((5, len(h)))
+    data[0] = h
+    for n in tqdm(range(len(h))):
+        data[1:, n] = full_run(spin_lattice, neighbor_sum, k, h[n], eta, lattice_size)
+    plt.plot(h, data[1], '.')
+    plt.show()
+    #  log data to csv
+    if log_data:
+        pd.DataFrame(data.transpose(), columns=["eta", "M", "M_sqr", "U", "U_sqr"]).to_csv(
+            "hysteresis eta = " + str(eta) + ".csv")
 
 
 if __name__ == '__main__':
-    h = 1
-    eta = np.arange(0.1, 0.85, 0.05)  # points from 0.1 to 0.8 with jumps of 0.05
-    full_simulation(h, eta)
+    # h = 0
+    # eta = np.concatenate((np.arange(0.1, 0.42, 0.05), np.arange(0.42, 0.5, 0.005), np.arange(0.55, 0.85, 0.05)))
+    # full_simulation(h, eta, True)
+    h = np.concatenate((np.linspace(1, -1, 400), np.linspace(-1, 1, 400)))
+    eta = 0.5
+    simulate_hysteresis(h, eta, True)
