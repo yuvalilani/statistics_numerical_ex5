@@ -32,7 +32,7 @@ def graph(file, cols, xlable, ylabel, func=lambda x: x, show=1):
 
 def onsager(eta):
     z = np.exp(-2 * eta)
-    return ((1 + z ** 2) ** (1 / 4) + (1 - 6 * z ** 2 + z ** 4) ** (1 / 8)) / (1 - z ** 2) ** (1 / 2)
+    return ((1 + z ** 2) ** (1 / 4) * (1 - 6 * z ** 2 + z ** 4) ** (1 / 8)) / (1 - z ** 2) ** (1 / 2)
 
 
 def A():
