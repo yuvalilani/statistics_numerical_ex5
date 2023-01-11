@@ -1,18 +1,17 @@
 import numpy as np
-from numba import njit
+# from numba import njit
 import pandas as pd
 import matplotlib.pyplot as plt
 from tqdm import tqdm
 
-p_flip_cache = {}
 
 
-@njit
+# @njit
 def calc_p_flip(energy):
     return 1 / (np.exp(-2 * energy) + 1)
 
 
-@njit
+# @njit
 def create_p_flip(h, eta):
     p_flip = np.zeros((9, 2))
     for n in range(9):
@@ -22,7 +21,7 @@ def create_p_flip(h, eta):
     return p_flip
 
 
-@njit
+# @njit
 def flip_spin(spin_lattice, neighbor_sum, lattice_size, x, y, p, p_flip):
     if p < p_flip[int(4 + neighbor_sum[x, y]), int((spin_lattice[x, y] + 1) / 2)]:
         spin_lattice[x, y] *= -1
@@ -37,14 +36,14 @@ def flip_spin(spin_lattice, neighbor_sum, lattice_size, x, y, p, p_flip):
             neighbor_sum[x, y - 1] += ds
 
 
-@njit
+# @njit
 def flip_all(spin_lattice, neighbor_sum, lattice_size, p, p_flip):
     for i in range(lattice_size):
         for j in range(lattice_size):
             flip_spin(spin_lattice, neighbor_sum, lattice_size, i, j, p[i, j], p_flip)
 
 
-@njit
+# @njit
 def dont_stop(first, second, k):
     m1 = first[0]
     m2 = second[0]
@@ -56,7 +55,7 @@ def spin_setup(lattice_size):
     return 2.0 * np.random.randint(2, size=(lattice_size, lattice_size)) - 1.0
 
 
-@njit
+# @njit
 def neighbor_setup(spin_lattice, neighbor_sum, lattice_size):
     """
     CHANGES THE neighbor_sum
