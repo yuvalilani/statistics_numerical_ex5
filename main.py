@@ -145,9 +145,9 @@ def simulate_hysteresis(h, eta, log_data=False):
 
 
 if __name__ == '__main__':
-    # h = 0
-    # eta = np.concatenate((np.arange(0.1, 0.42, 0.05), np.arange(0.42, 0.5, 0.005), np.arange(0.55, 0.85, 0.05)))
-    # full_simulation(h, eta, True)
-    h = np.concatenate((np.linspace(1, -1, 400), np.linspace(-1, 1, 400)))
-    eta = 0.5
-    simulate_hysteresis(h, eta, True)
+    h = 0
+    eta = np.concatenate((np.arange(0.1, 0.42, 0.05), np.arange(0.42, 0.5, 0.005), np.arange(0.55, 0.85, 0.05)))
+    full_simulation(h, eta, True)
+    # h = np.concatenate((np.linspace(0.5, -0.5, 400), np.linspace(-0.5, 0.5, 400)))
+    # eta = 0.59
+    # simulate_hysteresis(h, eta, True)
