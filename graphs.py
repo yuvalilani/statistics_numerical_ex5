@@ -53,7 +53,7 @@ def plot_U(file, label, scatter=False, show=1):
     else:
         plt.plot(x, y / N, label=label)
     plt.xlabel(r"$\eta$")
-    plt.ylabel("U")
+    plt.ylabel("U/N")
     plt.legend()
     if show:
         plt.show()
@@ -76,9 +76,9 @@ def plot_cv(file, label, scatter=False, show=1):
 def plot_m(file, label, scatter=False, show=1):
     x, y = excel_to_np(file, cols=[1, 2])
     if scatter:
-        plt.scatter(x, np.abs(y), label=label)
+        plt.scatter(x, np.abs(y)/N, label=label)
     else:
-        plt.plot(x, np.abs(y), label=label)
+        plt.plot(x, np.abs(y)/N, label=label)
     plt.xlabel(r"$\eta$")
     plt.ylabel(r"$|<M>|/N$")
     plt.legend()
@@ -147,13 +147,13 @@ def plot_critical_eta():
 
 
 if __name__ == '__main__':
-    # eta_arr = [0.3, 0.5, 0.59, 0.62, 0.65, 1]
-    # for eta in eta_arr:
-    #     plot_hysteresis(eta)
-    # plt.legend(["eta = " + str(eta) for eta in eta_arr])
-    # plt.xlim(-0.5, 0.5)
-    # plt.show()
+    eta_arr = [0.3, 0.5, 0.59, 0.62, 0.65, 1]
+    for eta in eta_arr:
+        plot_hysteresis(eta)
+    plt.legend([r"$\eta$ = " + str(eta) for eta in eta_arr])
+    plt.xlim(-0.5, 0.5)
+    plt.show()
     # plot_critical_eta()
-    A()
-    B()
-    C()
+    # A()
+    # B()
+    # C()
